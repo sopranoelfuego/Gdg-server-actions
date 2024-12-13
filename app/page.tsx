@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formAction } from "./actions/formAction";
 import { useState } from "react";
 import { number } from "zod";
+import { PrismaClient } from "@prisma/client";
 
 export type TToDo = {
   id?: number | string;
@@ -33,21 +34,23 @@ const menus: Array<{ id: number; name: string; path: string }> = [
     path: "/",
   },
 ];
+const prisma=new PrismaClient()
 const fetchToDos = async () => {
   try {
-    const response = await fetch(
-      "https://656f2b6d6529ec1c62377a9a.mockapi.io/api/todos"
-    );
-    if (!response.ok) throw new Error("Error in fetching toDos");
+    // const response = await fetch(
+    //   "https://656f2b6d6529ec1c62377a9a.mockapi.io/api/todos"
+    // );
+    const response:Array<TToDo>=await prisma.toDo.findMany()
 
-    return response.json();
+
+    return response;
   } catch (error) {
     console.log("error accures", error);
   }
 };
 export default async function Home() {
-  const todos: Array<TToDo> = await fetchToDos();
-  // INLINE WAY
+  const todos = await fetchToDos();
+  // SERVER ACTIONS INLINE WAY
   // const formAction=async(formdata:FormData)=>{
   //   "use server"
   //   const title=formdata.get("title")
@@ -74,6 +77,7 @@ export default async function Home() {
         <div className="flex-1 ">
           <h1 className="font-semibold text-2xl mb-5">Create a ToDo</h1>
           <div>
+            {/* BEFORE WE USE TO USE ACTION PROPERTY AND PASS A URL BUT NOW WE PASS A */}
             <form className="flex flex-col gap-4" action={formAction}>
               <input
                 name="title"
